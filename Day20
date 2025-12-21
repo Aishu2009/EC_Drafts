@@ -7,16 +7,42 @@ cost int red= 4
 cost int blue = 5
 cost int yellow= 6
 
-const in 
+const byte PIN_LENGTH = 4;                           // PIN code is 4 button presses
+int color[PIN_LENGTH] = { 1,2,3,4 };  // Initial password is four zeros.
 
+const byte ROW_PINS[ROWS] = { 5, 4, 3, 2 };
+const byte COL_PINS[COLS] = { 6, 7, 8, 13 };  // NOTE wire moved from Day 13's sketch to pin 13
+
+// Create our keypad object from the keypad configuration above
+Keypad heroKeypad = Keypad(makeKeymap(BUTTONS), ROW_PINS, COL_PINS, ROWS, COLS);
 
 
 void()setup:
 
 void()loop:
 
+  int button_character = heroKeypad.getKey();  // Wait for a button press and save character
+
+  // The '#' button unlocks our console
+  if (button_characteeer == 1 ) {        
+    void()red_node;
+}
+  if (button_characteeer == 2 ) {        
+    void()red_node;
+}
+  if (button_characteeer == 3) {        
+    void()red_node;
+}
+   if (button_characteeer == 4 ) {        
+    void()red_node;
+}
 void()red_node:
 
 void()blue_node:
 
 void()yellow_node:
+
+void()all:
+
+
+
