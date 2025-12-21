@@ -1,0 +1,22 @@
+#include <Arduino.h>
+#include <rotarary encoder >
+#include <keypad library>
+
+// change basrd on hardware confug of rgb led
+cost int red= 4
+cost int blue = 5
+cost int yellow= 6
+
+const in 
+
+
+
+void()setup:
+
+void()loop:
+
+void()red_node:
+
+void()blue_node:
+
+void()yellow_node:
