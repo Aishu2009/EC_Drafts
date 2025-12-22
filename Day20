@@ -1,48 +1,86 @@
-#include <Arduino.h>
-#include <rotarary encoder >
-#include <keypad library>
+#include "Arduino.h"
+#include <BasicEncoder.h>
+#include <Keypad.h>
 
-// change basrd on hardware confug of rgb led
-cost int red= 4
-cost int blue = 5
-cost int yellow= 6
+// mode selection
+int currentMode = 0;   // 1=red, 2=blue, 3=yellow
 
-const byte PIN_LENGTH = 4;                           // PIN code is 4 button presses
-int color[PIN_LENGTH] = { 1,2,3,4 };  // Initial password is four zeros.
+// each color has its own brightness value (0–100)
+int redValue = 0;
+int blueValue = 0;
+int yellowValue = 0;
 
-const byte ROW_PINS[ROWS] = { 5, 4, 3, 2 };
-const byte COL_PINS[COLS] = { 6, 7, 8, 13 };  // NOTE wire moved from Day 13's sketch to pin 13
+// RGB LED pins
+const int red = 10;
+const int blue = 11;
+const int yellow = 9;
 
-// Create our keypad object from the keypad configuration above
-Keypad heroKeypad = Keypad(makeKeymap(BUTTONS), ROW_PINS, COL_PINS, ROWS, COLS);
+// encoder pins
+const int clock = 3;
+const int dio = 2;
 
+// keypad setup
+const int ROWS = 1;
+const int COLS = 4;
+const char COLOR[ROWS][COLS] = { {'1','2','3','4'} };
 
-void()setup:
+const byte ROW_PINS[ROWS] = { 5 };
+const byte COL_PINS[COLS] = { 6, 7, 8, 13 };
 
-void()loop:
+Keypad heroKeypad = Keypad(makeKeymap(COLOR), ROW_PINS, COL_PINS, ROWS, COLS);
+BasicEncoder depth_control(clock, dio);
 
-  int button_character = heroKeypad.getKey();  // Wait for a button press and save character
-
-  // The '#' button unlocks our console
-  if (button_characteeer == 1 ) {        
-    void()red_node;
+void setup() {
+  pinMode(red, OUTPUT);
+  pinMode(blue, OUTPUT);
+  pinMode(yellow, OUTPUT);
 }
-  if (button_characteeer == 2 ) {        
-    void()red_node;
+
+void loop() {
+
+  char button_character = heroKeypad.getKey();
+
+  // update mode when a key is pressed
+  if (button_character != NO_KEY) {
+    if (button_character == '1') currentMode = 1;
+    if (button_character == '2') currentMode = 2;
+    if (button_character == '3') currentMode = 3;
+  }
+
+  // run the selected mode continuously
+  if (currentMode == 1) adjustRed();
+  if (currentMode == 2) adjustBlue();
+  if (currentMode == 3) adjustYellow();
+
+  // always display the mixed color
+  analogWrite(red,   map(redValue,   0, 100, 0, 255));
+  analogWrite(blue,  map(blueValue,  0, 100, 0, 255));
+  analogWrite(yellow,map(yellowValue,0, 100, 0, 255));
 }
-  if (button_characteeer == 3) {        
-    void()red_node;
+
+void adjustRed() {
+  depth_control.service();
+  int change = depth_control.get_change();
+  redValue += change;
+
+  if (redValue < 0) redValue = 0;
+  if (redValue > 100) redValue = 100;
 }
-   if (button_characteeer == 4 ) {        
-    void()red_node;
+
+void adjustBlue() {
+  depth_control.service();
+  int change = depth_control.get_change();
+  blueValue += change;
+
+  if (blueValue < 0) blueValue = 0;
+  if (blueValue > 100) blueValue = 100;
 }
-void()red_node:
 
-void()blue_node:
+void adjustYellow() {
+  depth_control.service();
+  int change = depth_control.get_change();
+  yellowValue += change;
 
-void()yellow_node:
-
-void()all:
-
-
-
+  if (yellowValue < 0) yellowValue = 0;
+  if (yellowValue > 100) yellowValue = 100;
+}
