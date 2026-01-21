@@ -43,7 +43,7 @@ void loop() {
 void SetCurrentTime(){
   char pressedButton = heroKeypad.waitForKey();
 }
-void SetAlaramTime(){
+void SetAlarmTime(){
   
 }
 void SetPassword(){
@@ -53,4 +53,16 @@ void RunClock(){
   
 }
 void Alarm(){
+  tone(buzzerPin, tone1, 200); 
+  delay(250); 
+  tone(buzzerPin, tone2, 200); 
+  delay(250); 
+  tone(buzzerPin, tone1, 200); 
+  delay(250); 
+  tone(buzzerPin, tone2, 200); 
+  delay(250);
+}
+void AlarmStop(){
+  noTone(buzzerPin); 
+  delay(500);
 }
