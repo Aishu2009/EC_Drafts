@@ -1,6 +1,8 @@
 #include "Arduino.h"
 #include <Keypad.h>
-
+int buzzerPin = 9; // Frequencies for alarm tones int tone1 = 880; // A5 int tone2 = 1046; // C6
+int tone1 = 880; // A5 
+int tone2 = 1046; // C6
 const byte ROWS = 4;
 const byte COLS = 4;
 
@@ -17,7 +19,7 @@ const char BUTTONS[ROWS][COLS] = {
 Keypad heroKeypad = Keypad(makeKeymap(BUTTONS), ROW_PINS, COL_PINS, ROWS, COLS);
 
 void setup() {
-  
+  pinMode(buzzerPin, OUTPUT);
 }
 
 void loop() {
@@ -34,6 +36,9 @@ void loop() {
     ){
     Alarm();
     }
+    if(){
+      
+    }
   
   //char variable is the value that is got when a key is pressed 
   char pressedButton = heroKeypad.waitForKey();  
@@ -42,11 +47,15 @@ void loop() {
 }
 void SetCurrentTime(){
   char pressedButton = heroKeypad.waitForKey();
+  //print Time on the seven segment diaplsy
 }
 void SetAlarmTime(){
+  //Print alarm on the 7 seg display
   
 }
 void SetPassword(){
+  //Print Pass on the seven segment display
+  
   
 }
 void RunClock(){
