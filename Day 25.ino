@@ -41,6 +41,8 @@ Keypad heroKeypad = Keypad(makeKeymap(BUTTONS), ROW_PINS, COL_PINS, ROWS, COLS);
 
 //Clock setup
 int currentTime= 0;
+int AlarmTime = 0;
+int Password = 0; 
 int H1, H2, M1, M2; 
 int S1 = 0, S2 = 0; 
 unsigned long lastTick = 0;
@@ -78,12 +80,16 @@ void SetCurrentTime(){
   lander_display.clear();
   delay(1000);
   lander_display.setSegments(CurrentDisplay);
-  int pressedButton = heroKeypad.waitForKey();
+  delay(5000);
+  lander_display.clear();
   for (int i = 0; i < 4; i++) { 
-    char currentTime = heroKeypad.waitForKey();
-    int digit= currentTime-'0';
+    char key = heroKeypad.waitForKey();
+    int digit= key-'0';
     currentTime = currentTime * 10 + digit;
   }
+  display.showNumberDecEx( currentTime, 0x40, true);
+  delay(10000);
+  lander_display.clear();
   //print Time on the seven segment diaplsy
 }
 void SetAlarmTime(){
@@ -91,18 +97,34 @@ void SetAlarmTime(){
   lander_display.clear();
   delay(1000);
   lander_display.setSegments(AlarmDisplay);
+  delay(5000);
+  lander_display.clear();
+  for (int i = 0; i < 4; i++) { 
+    char key = heroKeypad.waitForKey();
+    int digit= key-'0';
+    AlarmTime = AlarmTime * 10 + digit;
+  display.showNumberDecEx(AlarmTime, 0x40, true);
+  delay(10000);
+  lander_display.clear();
 }
 void SetPassword(){
   //Print Pass on the seven segment display
-  
-  
+  lander_display.clear();
+  delay(1000);
+  lander_display.setSegments(AlarmDisplay);
+  delay(5000);
+  lander_display.clear();
+  for (int i = 0; i < 4; i++) { 
+    char key = heroKeypad.waitForKey();
+    int digit= key-'0';
+    Password = Password * 10 + digit;
+  }
+  display.showNumberDecEx( currentTime, 0x40, true);
+  delay(10000);
+  lander_display.clear();
 }
-void RunClock(){
-  
-}
-
 //RunClock  
-  int tickClock() { 
+  int RunClock()() { 
   unsigned long now = millis(); 
   if (now - lastTick >= 1000) { // 1 second 
   lastTick = now; // ------------------------- // Break HHMM into digits // ------------------------- 
@@ -130,6 +152,7 @@ void RunClock(){
       H2 = 0; H1++; 
     } // ------------------------- // Reassemble HHMM // ------------------------- 
     currentTime = H1 * 1000 + H2 * 100 + M1 * 10 + M2; 
+    display.showNumberDecEx(currentTime, 0x40, true);
   }
 return currentTime; }
 
