@@ -1,13 +1,14 @@
 #include "Arduino.h"
 #include <Keypad.h>
 #include <TM1637Display.h>
+
+//Buzzer
 int buzzerPin = 9; // Frequencies for alarm tones int tone1 = 880; // A5 int tone2 = 1046; // C6
 int tone1 = 880; // A5 
 int tone2 = 1046; // C6
-const byte ROWS = 4;
-const byte COLS = 4;
 
-//Display prompts
+
+//7-Segment Display
 const byte AlarmDisplay[] = {          // d
   SEG_A | SEG_B | SEG_C | SEG_G | SEG_E | SEG_F  // O    // E
 };
@@ -19,7 +20,13 @@ const byte PassCorrect[] = {                   // n
   SEG_A | SEG_B | SEG_C | SEG_G | SEG_E | SEG_F,
   SEG_A |SEG_C | SEG_D | SEG_G | SEG_F,
 };
-//pinpad digital pins
+
+const byte CLK_PIN = 12;
+const byte DIO_PIN = 11;
+
+//PINPAD
+const byte ROWS = 4;
+const byte COLS = 4;
 const byte ROW_PINS[ROWS] = { 5, 4, 3, 2 };
 const byte COL_PINS[COLS] = { 6, 7, 8, 9 };
 //pinpad index/array
@@ -32,6 +39,13 @@ const char BUTTONS[ROWS][COLS] = {
 //Use the buttons index to setup/ initialize pin setup for all the pinpad pins
 Keypad heroKeypad = Keypad(makeKeymap(BUTTONS), ROW_PINS, COL_PINS, ROWS, COLS);
 
+//Clock setup
+int currentTime= 0;
+int H1, H2, M1, M2; 
+int S1 = 0, S2 = 0; 
+unsigned long lastTick = 0;
+
+
 void setup() {
   pinMode(buzzerPin, OUTPUT);
 }
@@ -39,12 +53,11 @@ void setup() {
 void loop() {
   str currentTime= ' ';
   SetPassword();
-  SetAlaramTime();  
+  SetAlarmTime();  
   SetCurrentTime();
   RunClock();
 
-  while (//alarm time != Current time
-    ){
+  while (alarm time != Current time){
     RunClock();
     }
     
@@ -64,15 +77,20 @@ void loop() {
 void SetCurrentTime(){
   lander_display.clear();
   delay(1000);
-  lander_display.setSegments(done)
-  char pressedButton = heroKeypad.waitForKey();
+  lander_display.setSegments(CurrentDisplay);
+  int pressedButton = heroKeypad.waitForKey();
+  for (int i = 0; i < 4; i++) { 
+    char currentTime = heroKeypad.waitForKey();
+    int digit= currentTime-'0';
+    currentTime = currentTime * 10 + digit;
+  }
   //print Time on the seven segment diaplsy
 }
 void SetAlarmTime(){
   //Print alarm on the 7 seg display
   lander_display.clear();
   delay(1000);
-  lander_display.setSegments(done)
+  lander_display.setSegments(AlarmDisplay);
 }
 void SetPassword(){
   //Print Pass on the seven segment display
@@ -82,6 +100,40 @@ void SetPassword(){
 void RunClock(){
   
 }
+
+//RunClock  
+  int tickClock() { 
+  unsigned long now = millis(); 
+  if (now - lastTick >= 1000) { // 1 second 
+  lastTick = now; // ------------------------- // Break HHMM into digits // ------------------------- 
+    H1 = currentTime / 1000; // thousands 
+    H2 = (currentTime / 100) - (H1 * 10); // hundreds 
+    M1 = (currentTime / 10) - (H1 * 100 + H2 * 10); // tens 
+    M2 = currentTime - (H1 * 1000 + H2 * 100 + M1 * 10); // ones // ------------------------- // Seconds // ------------------------- 
+    S2++; 
+    if (S2 > 9) { 
+      S2 = 0; S1++; 
+    } 
+    if (S1 > 5) { 
+      S1 = 0; M2++; 
+    } // ------------------------- // Minutes // ------------------------- 
+    if (M2 > 9) { 
+      M2 = 0; M1++; 
+    } 
+    if (M1 > 5) { 
+      M1 = 0; H2++; 
+    } // ------------------------- // Hours // ------------------------- 
+    if (H1 == 2 && H2 > 3) {
+      H1 = 0; H2 = 0; 
+    } 
+    if (H2 > 9) {
+      H2 = 0; H1++; 
+    } // ------------------------- // Reassemble HHMM // ------------------------- 
+    currentTime = H1 * 1000 + H2 * 100 + M1 * 10 + M2; 
+  }
+return currentTime; }
+
+
 void Alarm(){
   tone(buzzerPin, tone1, 200); 
   delay(250); 
