@@ -1,7 +1,6 @@
 #include "Arduino.h"
 #include <Keypad.h>
 
-
 const byte ROWS = 4;
 const byte COLS = 4;
 
@@ -22,8 +21,36 @@ void setup() {
 }
 
 void loop() {
+  str currentTime= ' ';
+  SetAlaramTime();  
+  SetCurrentTime();
+  SetPassword();
+  while (//alarm time != Current time
+    ){
+    RunClock();
+    }
+    
+  if (//Alaram time =
+    ){
+    Alarm();
+    }
+  
   //char variable is the value that is got when a key is pressed 
   char pressedButton = heroKeypad.waitForKey();  
   //Serial print that charcter that is gotten form the pin pad
   Serial.println(pressedButton);
+}
+void SetCurrentTime(){
+  char pressedButton = heroKeypad.waitForKey();
+}
+void SetAlaramTime(){
+  
+}
+void SetPassword(){
+  
+}
+void RunClock(){
+  
+}
+void Alarm(){
 }
