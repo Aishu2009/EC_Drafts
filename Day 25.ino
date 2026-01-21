@@ -1,14 +1,28 @@
 #include "Arduino.h"
 #include <Keypad.h>
+#include <TM1637Display.h>
 int buzzerPin = 9; // Frequencies for alarm tones int tone1 = 880; // A5 int tone2 = 1046; // C6
 int tone1 = 880; // A5 
 int tone2 = 1046; // C6
 const byte ROWS = 4;
 const byte COLS = 4;
 
+//Display prompts
+const byte AlarmDisplay[] = {          // d
+  SEG_A | SEG_B | SEG_C | SEG_G | SEG_E | SEG_F  // O    // E
+};
+const byte CurrentDisplay[] = {                   // n
+  SEG_A | SEG_D | SEG_E | SEG_F          // E
+};
+const byte PassCorrect[] = {                   // n
+  SEG_A | SEG_B | SEG_G | SEG_E | SEG_F,
+  SEG_A | SEG_B | SEG_C | SEG_G | SEG_E | SEG_F,
+  SEG_A |SEG_C | SEG_D | SEG_G | SEG_F,
+};
+//pinpad digital pins
 const byte ROW_PINS[ROWS] = { 5, 4, 3, 2 };
 const byte COL_PINS[COLS] = { 6, 7, 8, 9 };
-
+//pinpad index/array
 const char BUTTONS[ROWS][COLS] = {
   { '1', '2', '3', 'A' },  
   { '4', '5', '6', 'B' },  
@@ -24,9 +38,11 @@ void setup() {
 
 void loop() {
   str currentTime= ' ';
+  SetPassword();
   SetAlaramTime();  
   SetCurrentTime();
-  SetPassword();
+  RunClock();
+
   while (//alarm time != Current time
     ){
     RunClock();
@@ -46,12 +62,17 @@ void loop() {
   Serial.println(pressedButton);
 }
 void SetCurrentTime(){
+  lander_display.clear();
+  delay(1000);
+  lander_display.setSegments(done)
   char pressedButton = heroKeypad.waitForKey();
   //print Time on the seven segment diaplsy
 }
 void SetAlarmTime(){
   //Print alarm on the 7 seg display
-  
+  lander_display.clear();
+  delay(1000);
+  lander_display.setSegments(done)
 }
 void SetPassword(){
   //Print Pass on the seven segment display
