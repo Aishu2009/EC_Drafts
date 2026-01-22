@@ -43,6 +43,7 @@ Keypad heroKeypad = Keypad(makeKeymap(BUTTONS), ROW_PINS, COL_PINS, ROWS, COLS);
 int currentTime= 0;
 int AlarmTime = 0;
 int Password = 0; 
+int TrialPassword= 0;
 int H1, H2, M1, M2; 
 int S1 = 0, S2 = 0; 
 unsigned long lastTick = 0;
@@ -57,18 +58,20 @@ void loop() {
   SetPassword();
   SetAlarmTime();  
   SetCurrentTime();
-  RunClock();
 
-  while (alarm time != Current time){
+
+  while (AlarmTime != currentTime){
     RunClock();
     }
     
-  if (//Alaram time =
-    ){
+  if (AlarmTime == currentTime){
     Alarm();
-    }
-    if(){
-      
+    display.showNumberDecEx(AlarmTime, 0x40, true);
+    delay(10000);
+    GetPassword();
+    if(TrialPassword=Password){
+      AlarmStop()
+      break;
     }
   
   //char variable is the value that is got when a key is pressed 
@@ -126,31 +129,30 @@ void SetPassword(){
 //RunClock  
   int RunClock()() { 
   unsigned long now = millis(); 
-  if (now - lastTick >= 1000) { // 1 second 
-  lastTick = now; // ------------------------- // Break HHMM into digits // ------------------------- 
-    H1 = currentTime / 1000; // thousands 
-    H2 = (currentTime / 100) - (H1 * 10); // hundreds 
-    M1 = (currentTime / 10) - (H1 * 100 + H2 * 10); // tens 
-    M2 = currentTime - (H1 * 1000 + H2 * 100 + M1 * 10); // ones // ------------------------- // Seconds // ------------------------- 
+  if (now - lastTick >= 1000) { 
+  lastTick = now;
+    H1 = currentTime / 1000;  
+    H2 = (currentTime / 100) - (H1 * 10); 
+    M1 = (currentTime / 10) - (H1 * 100 + H2 * 10); 
+    M2 = currentTime - (H1 * 1000 + H2 * 100 + M1 * 10); 
     S2++; 
     if (S2 > 9) { 
       S2 = 0; S1++; 
     } 
     if (S1 > 5) { 
       S1 = 0; M2++; 
-    } // ------------------------- // Minutes // ------------------------- 
+    } 
     if (M2 > 9) { 
       M2 = 0; M1++; 
     } 
     if (M1 > 5) { 
       M1 = 0; H2++; 
-    } // ------------------------- // Hours // ------------------------- 
-    if (H1 == 2 && H2 > 3) {
+    } 
       H1 = 0; H2 = 0; 
     } 
     if (H2 > 9) {
       H2 = 0; H1++; 
-    } // ------------------------- // Reassemble HHMM // ------------------------- 
+    } 
     currentTime = H1 * 1000 + H2 * 100 + M1 * 10 + M2; 
     display.showNumberDecEx(currentTime, 0x40, true);
   }
@@ -170,4 +172,12 @@ void Alarm(){
 void AlarmStop(){
   noTone(buzzerPin); 
   delay(500);
+}
+
+void GetPassword(){
+  for (int i = 0; i < 4; i++) { 
+    char key = heroKeypad.waitForKey();
+    int digit= key-'0';
+    TrialPassword = TrialPassword * 10 + digit;
+  }
 }
