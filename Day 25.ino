@@ -7,18 +7,29 @@ int buzzerPin = 10; // Frequencies for alarm tones int tone1 = 880; // A5 int to
 int tone1 = 880; // A5 
 int tone2 = 1046; // C6
 
+bool passwordSet = false;
+bool alarmSet = false;
+bool timeSet = false;
 
 //7-Segment Display
 const byte AlarmDisplay[] = {          // d
-  SEG_A | SEG_B | SEG_C | SEG_G | SEG_E | SEG_F  // O    // E
+  SEG_A | SEG_B | SEG_C | SEG_G | SEG_E | SEG_F,
+  SEG_A | SEG_D | SEG_E | SEG_F,
+  SEG_A | SEG_B | SEG_C | SEG_G | SEG_E | SEG_F,
+  SEG_A | SEG_B | SEG_E | SEG_F  // O    // E
 };
 const byte CurrentDisplay[] = {                   // n
-  SEG_A | SEG_D | SEG_E | SEG_F          // E
+  SEG_A | SEG_D | SEG_E | SEG_F,
+  SEG_B | SEG_C | SEG_D | SEG_E | SEG_F,
+  SEG_A | SEG_B | SEG_E | SEG_F,
+  SEG_A | SEG_B | SEG_E | SEG_F
+            // E
 };
 const byte PassCorrect[] = {                   // n
   SEG_A | SEG_B | SEG_G | SEG_E | SEG_F,
   SEG_A | SEG_B | SEG_C | SEG_G | SEG_E | SEG_F,
   SEG_A |SEG_C | SEG_D | SEG_G | SEG_F,
+  SEG_A |SEG_C | SEG_D | SEG_G | SEG_F
 };
 
 const byte CLK_PIN = 12;
@@ -56,39 +67,60 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("Welcome to the 24 Hour alarm clock that requires you to rember the password you put in the night before to disable your clock");
-  Serial.println("setpassword");
-  SetPassword();
-  Serial.println("Set your Alarm Time");
-  SetAlarmTime();  
-  Serial.println("Set the current Time");
-  SetCurrentTime();
 
+  if (!passwordSet) {
+    Serial.println("Set password:");
+    SetPassword();
+    passwordSet = true;
+  }
 
-  if (AlarmTime != currentTime){
-    RunClock();
+  if (!alarmSet) {
+    Serial.println("Set alarm time:");
+    SetAlarmTime();
+    alarmSet = true;
+  }
+
+  if (!timeSet) {
+    Serial.println("Set current time:");
+    SetCurrentTime();
+    timeSet = true;
+  }
+
+  RunClock();
+
+  // Alarm triggers
+  if (currentTime == AlarmTime) {
+    Serial.println("ALARM TIME REACHED!");
+    Serial.println("Alarm is ringing!");
+
+    while (currentTime == AlarmTime) {
+      Alarm();
+      Alarm();
+      Alarm();
+      Serial.println("Rise and Shine");
+      break;
+      /*GetPassword();
+
+      if (TrialPassword == Password) {
+        AlarmStop();
+        Serial.println("Correct password. Alarm stopped.");
+        TrialPassword = 0;
+        break;
+      } else {
+        Alarm();
+        TrialPassword = 0;
+      }
+
+      RunClock(); // keep time moving while alarm is active  */
     }
-    
-  if (AlarmTime == currentTime){
-    Alarm();
-    lander_display.showNumberDecEx(AlarmTime, 0x40, true);
-    delay(10000);
-    GetPassword();
-    if(TrialPassword=Password){
-      AlarmStop();
-      //break;
-    }
-  
-  //char variable is the value that is got when a key is pressed 
-  
-  
   }
 }
+
+
 void SetCurrentTime(){
   lander_display.clear();
-  delay(1000);
   lander_display.setSegments(CurrentDisplay);
-  delay(5000);
+  delay(1000);
   lander_display.clear();
   Serial.println("ready");
   for (int i = 0; i < 4; i++) { 
@@ -105,9 +137,8 @@ void SetCurrentTime(){
 void SetAlarmTime(){
   //Print alarm on the 7 seg display
   lander_display.clear();
-  delay(1000);
   lander_display.setSegments(AlarmDisplay);
-  delay(5000);
+  delay(1000);
   lander_display.clear();
   for (int i = 0; i < 4; i++) { 
     char key = heroKeypad.waitForKey();
@@ -122,9 +153,8 @@ void SetAlarmTime(){
 void SetPassword() {
   //Print Pass on the seven segment display
   lander_display.clear();
+  lander_display.setSegments(PassCorrect);
   delay(1000);
-  lander_display.setSegments(AlarmDisplay);
-  delay(5000);
   lander_display.clear();
   for (int i = 0; i < 4; i++) { 
     char key = heroKeypad.waitForKey();
@@ -132,7 +162,7 @@ void SetPassword() {
     Password = Password * 10 + digit;
     Serial.println(Password);
   }
-  lander_display.showNumberDecEx( currentTime, 0x40, true);
+  lander_display.showNumberDecEx(Password, 0x40, true);
   delay(10000);
   lander_display.clear();
 }
@@ -188,7 +218,7 @@ int RunClock() {
 
 
 void Alarm(){
-  tone(buzzerPin, tone1, 200); 
+  /*tone(buzzerPin, tone1, 200); 
   delay(250); 
   tone(buzzerPin, tone2, 200); 
   delay(250); 
@@ -196,6 +226,16 @@ void Alarm(){
   delay(250); 
   tone(buzzerPin, tone2, 200); 
   delay(250);
+  GetPassword();*/
+  
+    int melody[] = {262, 294, 330, 262};  // C4, D4, E4, C4
+    int duration = 300;
+
+    for (int i = 0; i < 4; i++) {
+        tone(buzzerPin, melody[i], duration);
+        delay(duration + 50);
+    }
+
 }
 void AlarmStop(){
   noTone(buzzerPin); 
@@ -203,6 +243,7 @@ void AlarmStop(){
 }
 
 void GetPassword(){
+  TrialPassword = 0;
   for (int i = 0; i < 4; i++) { 
     char key = heroKeypad.waitForKey();
     int digit= key-'0';
