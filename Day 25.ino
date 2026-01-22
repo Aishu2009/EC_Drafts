@@ -3,7 +3,7 @@
 #include <TM1637Display.h>
 
 //Buzzer
-int buzzerPin = 9; // Frequencies for alarm tones int tone1 = 880; // A5 int tone2 = 1046; // C6
+int buzzerPin = 10; // Frequencies for alarm tones int tone1 = 880; // A5 int tone2 = 1046; // C6
 int tone1 = 880; // A5 
 int tone2 = 1046; // C6
 
@@ -23,6 +23,7 @@ const byte PassCorrect[] = {                   // n
 
 const byte CLK_PIN = 12;
 const byte DIO_PIN = 11;
+TM1637Display lander_display = TM1637Display(CLK_PIN, DIO_PIN);
 
 //PINPAD
 const byte ROWS = 4;
@@ -48,36 +49,40 @@ int H1, H2, M1, M2;
 int S1 = 0, S2 = 0; 
 unsigned long lastTick = 0;
 
-
 void setup() {
   pinMode(buzzerPin, OUTPUT);
+  lander_display.setBrightness(7);
+  Serial.begin(9600);
 }
 
 void loop() {
-  str currentTime= ' ';
+  Serial.println("Welcome to the 24 Hour alarm clock that requires you to rember the password you put in the night before to disable your clock");
+  Serial.println("setpassword");
   SetPassword();
+  Serial.println("Set your Alarm Time");
   SetAlarmTime();  
+  Serial.println("Set the current Time");
   SetCurrentTime();
 
 
-  while (AlarmTime != currentTime){
+  if (AlarmTime != currentTime){
     RunClock();
     }
     
   if (AlarmTime == currentTime){
     Alarm();
-    display.showNumberDecEx(AlarmTime, 0x40, true);
+    lander_display.showNumberDecEx(AlarmTime, 0x40, true);
     delay(10000);
     GetPassword();
     if(TrialPassword=Password){
-      AlarmStop()
-      break;
+      AlarmStop();
+      //break;
     }
   
   //char variable is the value that is got when a key is pressed 
-  char pressedButton = heroKeypad.waitForKey();  
-  //Serial print that charcter that is gotten form the pin pad
-  Serial.println(pressedButton);
+  
+  
+  }
 }
 void SetCurrentTime(){
   lander_display.clear();
@@ -85,12 +90,14 @@ void SetCurrentTime(){
   lander_display.setSegments(CurrentDisplay);
   delay(5000);
   lander_display.clear();
+  Serial.println("ready");
   for (int i = 0; i < 4; i++) { 
     char key = heroKeypad.waitForKey();
     int digit= key-'0';
     currentTime = currentTime * 10 + digit;
+    Serial.println(currentTime);
   }
-  display.showNumberDecEx( currentTime, 0x40, true);
+  lander_display.showNumberDecEx( currentTime, 0x40, true);
   delay(10000);
   lander_display.clear();
   //print Time on the seven segment diaplsy
@@ -106,11 +113,13 @@ void SetAlarmTime(){
     char key = heroKeypad.waitForKey();
     int digit= key-'0';
     AlarmTime = AlarmTime * 10 + digit;
-  display.showNumberDecEx(AlarmTime, 0x40, true);
+    Serial.println(AlarmTime);
+  }
+  lander_display.showNumberDecEx(AlarmTime, 0x40, true);
   delay(10000);
   lander_display.clear();
 }
-void SetPassword(){
+void SetPassword() {
   //Print Pass on the seven segment display
   lander_display.clear();
   delay(1000);
@@ -121,42 +130,61 @@ void SetPassword(){
     char key = heroKeypad.waitForKey();
     int digit= key-'0';
     Password = Password * 10 + digit;
+    Serial.println(Password);
   }
-  display.showNumberDecEx( currentTime, 0x40, true);
+  lander_display.showNumberDecEx( currentTime, 0x40, true);
   delay(10000);
   lander_display.clear();
 }
 //RunClock  
-  int RunClock()() { 
+int RunClock() { 
   unsigned long now = millis(); 
+
   if (now - lastTick >= 1000) { 
-  lastTick = now;
+    lastTick = now;
+
     H1 = currentTime / 1000;  
     H2 = (currentTime / 100) - (H1 * 10); 
     M1 = (currentTime / 10) - (H1 * 100 + H2 * 10); 
     M2 = currentTime - (H1 * 1000 + H2 * 100 + M1 * 10); 
+
     S2++; 
     if (S2 > 9) { 
-      S2 = 0; S1++; 
+      S2 = 0; 
+      S1++; 
     } 
+
     if (S1 > 5) { 
-      S1 = 0; M2++; 
+      S1 = 0; 
+      M2++; 
     } 
+
     if (M2 > 9) { 
-      M2 = 0; M1++; 
+      M2 = 0; 
+      M1++; 
     } 
+
     if (M1 > 5) { 
-      M1 = 0; H2++; 
+      M1 = 0; 
+      H2++; 
     } 
-      H1 = 0; H2 = 0; 
+
+    if (H1 == 2 && H2 > 3) { 
+      H1 = 0; 
+      H2 = 0; 
     } 
+
     if (H2 > 9) {
-      H2 = 0; H1++; 
+      H2 = 0; 
+      H1++; 
     } 
+
     currentTime = H1 * 1000 + H2 * 100 + M1 * 10 + M2; 
-    display.showNumberDecEx(currentTime, 0x40, true);
+    lander_display.showNumberDecEx(currentTime, 0x40, true);
   }
-return currentTime; }
+
+  return currentTime; 
+}
 
 
 void Alarm(){
@@ -181,3 +209,4 @@ void GetPassword(){
     TrialPassword = TrialPassword * 10 + digit;
   }
 }
+
